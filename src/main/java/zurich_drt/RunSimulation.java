@@ -17,10 +17,11 @@ import java.io.IOException;
 public class RunSimulation {
     public static void main(String[] args) throws CommandLine.ConfigurationException, IOException {
         CommandLine cmd = new CommandLine.Builder(args) //
-                //.requireOptions("config-path") //
+                .requireOptions("config-path") //
                 .allowOptions() //
                 .allowPrefixes("mode-parameter", "cost-parameter") //
                 .build();
+
 
 
         String config_path = cmd.getOptionStrict("config-path");
