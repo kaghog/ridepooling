@@ -9,6 +9,8 @@ import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.population.Person;
+import org.matsim.contrib.drt.analysis.zonal.DrtModeZonalSystemModule;
+import org.matsim.contrib.drt.analysis.zonal.DrtZonalSystemParams;
 import org.matsim.contrib.drt.optimizer.insertion.DrtInsertionSearchParams;
 import org.matsim.contrib.drt.optimizer.insertion.SelectiveInsertionSearchParams;
 import org.matsim.contrib.drt.routing.DrtRoute;
@@ -33,6 +35,7 @@ import org.matsim.households.Household;
 import org.matsim.vehicles.VehicleType;
 import zurich_drt.mode_choice.ZurichDrtModeAvailability;
 import zurich_drt.mode_choice.ZurichDrtModeChoiceModule;
+import zurich_drt.wait_time.ZurichDrtWaitTimeModule;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -103,6 +106,11 @@ public class ZurichDrtConfigurator extends EqasimConfigurator {
         drtConfig.setMaxTravelTimeBeta(300.0);
         drtConfig.setVehiclesFile("");
 
+        //consider drt zones generation for the average wait time
+        DrtZonalSystemParams zoneParams = drtConfig.getZonalSystemParams().orElseThrow();
+        zoneParams.setCellSize(500.0);
+        zoneParams.setZonesGeneration(DrtZonalSystemParams.ZoneGeneration.GridFromNetwork);
+
         DrtInsertionSearchParams searchParams = new SelectiveInsertionSearchParams();
         drtConfig.addDrtInsertionSearchParams(searchParams);
 
@@ -128,7 +136,7 @@ public class ZurichDrtConfigurator extends EqasimConfigurator {
     }
 
 
-    public static void configureController(Controler controller, CommandLine cmd, Config config) {
+    public static void configureController(Controler controller, CommandLine cmd, Config config, Scenario scenario) {
         controller.addOverridingModule(new DvrpModule());
         controller.addOverridingModule(new MultiModeDrtModule());
         controller.configureQSimComponents(components -> {
@@ -137,16 +145,11 @@ public class ZurichDrtConfigurator extends EqasimConfigurator {
 
         controller.addOverridingModule(new ZurichDrtModeChoiceModule(cmd));
 
-    }
+        //consider drt zones generation
+        controller.addOverridingModule(new DrtModeZonalSystemModule(DrtConfigGroup.getSingleModeDrtConfig(config)));
+        controller.addOverridingModule(new ZurichDrtWaitTimeModule(DrtConfigGroup.getSingleModeDrtConfig(config), scenario));
 
-    public static void configureController(Controler controller, CommandLine cmd, Config config, Scenario scenario) {
-        controller.addOverridingModule(new DvrpModule());
-        controller.addOverridingModule(new MultiModeDrtModule());
-        controller.configureQSimComponents(components -> {
-            DvrpQSimComponents.activateAllModes(MultiModeDrtConfigGroup.get(config)).configure(components);
-        });
-
-        if (!config.qsim().getVehiclesSource().name().equals("defaultVehicle")) {
+        /*if (!config.qsim().getVehiclesSource().name().equals("defaultVehicle")) {
             controller.addOverridingModule(new AbstractModule() {
 
                 @Override
@@ -156,8 +159,7 @@ public class ZurichDrtConfigurator extends EqasimConfigurator {
                                     scenario.getVehicles().getVehicleTypes().get(Id.create(TransportMode.drt, VehicleType.class)));
                 }
             });}
-
-        controller.addOverridingModule(new ZurichDrtModeChoiceModule(cmd));
+*/
 
     }
 

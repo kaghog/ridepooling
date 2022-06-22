@@ -22,8 +22,6 @@ public class RunSimulation {
                 .allowPrefixes("mode-parameter", "cost-parameter") //
                 .build();
 
-
-
         String config_path = cmd.getOptionStrict("config-path");
 
         Config config = ConfigUtils.loadConfig(config_path, ZurichDrtConfigurator.getConfigGroups());
@@ -45,7 +43,9 @@ public class RunSimulation {
         controller.addOverridingModule(new EqasimModeChoiceModule());
 
         //add dvrp and drt module to controller
-        ZurichDrtConfigurator.configureController(controller, cmd, config);
+        ZurichDrtConfigurator.configureController(controller, cmd, config, scenario);
+
+
 
 
         controller.run();
