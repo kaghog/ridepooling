@@ -67,6 +67,7 @@ public class DrtPredictor extends CachedVariablePredictor<DrtVariables> {
                         if (drtWaitTimes.getAvgWaitTimes().get(zone) != null) {
                             int index = (int) Math.floor(leg.getDepartureTime().seconds() / 3600.0);
                             waitingTime_min = this.drtWaitTimes.getAvgWaitTimes().get(zone)[index] / 60;
+                            //toDo address zero wait times - check how to treat zones with no observations i.e zero wait time
                         }
                     }
 

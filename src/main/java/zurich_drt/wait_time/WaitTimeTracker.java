@@ -35,7 +35,7 @@ public class WaitTimeTracker implements PersonEntersVehicleEventHandler, DrtRequ
         if (event.getVehicleId().toString().contains("drt") && this.submittedRequest.containsKey(event.getPersonId())) {
             DrtTripData drtTrip = this.submittedRequest.get(event.getPersonId());
             drtTrip.pickUpTime = event.getTime();
-            drtTrip.waitTime = drtTrip.startTime - drtTrip.pickUpTime;
+            drtTrip.waitTime = drtTrip.pickUpTime - drtTrip.startTime ;
             this.drtTrips.add(drtTrip);
         }
     }
