@@ -14,21 +14,23 @@ public class DrtWaitTimes implements IterationEndsListener {
 
     private final WaitTimeTracker trackedWaitTimes;
     private Map<String, double[]> avgWaitTimes;
+    WayneCountyDrtZonalSystem zones;
 
     @Inject
-    public DrtWaitTimes(WaitTimeTracker trackedWaitTimes, DrtZonalSystem zones, Config config){
+    public DrtWaitTimes(WaitTimeTracker trackedWaitTimes, WayneCountyDrtZonalSystem zones, Config config){
 
         this.trackedWaitTimes = trackedWaitTimes;
         this.avgWaitTimes = new HashMap<>();
+        this.zones = zones;
     }
 
     @Override
     public void notifyIterationEnds(IterationEndsEvent event) {
         //generate wait times for use.
-        this.avgWaitTimes = WaitTimeMetrics.calculateZonalAverageWaitTimes(trackedWaitTimes);
+        this.avgWaitTimes = WaitTimeMetrics.calculateZonalAverageWaitTimes(trackedWaitTimes, zones);
 
-        //if...then configuration for what method to use
-        //this.avgWaitTimes = WaitTimeMetrics.calculateSuccessiveZonalAverageWaitTimes(event.getIteration(), trackedWaitTimes);
+        //toDo if...then configuration for what method to use - define moving window
+        this.avgWaitTimes = WaitTimeMetrics.calculateMovingZonalAverageWaitTimes(trackedWaitTimes, zones, event.getIteration(), 0);
     }
 
     public Map<String, double[]> getAvgWaitTimes() {

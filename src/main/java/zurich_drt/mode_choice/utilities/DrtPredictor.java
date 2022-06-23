@@ -20,14 +20,15 @@ import org.matsim.core.router.TripStructureUtils;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import zurich_drt.wait_time.DrtWaitTimes;
+import zurich_drt.wait_time.WayneCountyDrtZonalSystem;
 
 public class DrtPredictor extends CachedVariablePredictor<DrtVariables> {
     private CostModel costModel;
-    private DrtZonalSystem zones;
+    private WayneCountyDrtZonalSystem zones;
     private final DrtWaitTimes drtWaitTimes;
 
     @Inject
-    public DrtPredictor(@Named("drt") CostModel costModel, DrtZonalSystem zones, DrtWaitTimes drtWaitTimes) {
+    public DrtPredictor(@Named("drt") CostModel costModel, WayneCountyDrtZonalSystem zones, DrtWaitTimes drtWaitTimes) {
 
         this.costModel = costModel;
         this.zones = zones;
@@ -60,7 +61,7 @@ public class DrtPredictor extends CachedVariablePredictor<DrtVariables> {
 
                     if (useAverageWaitTime){
                         Id<Link> startLinkId = leg.getRoute().getStartLinkId();
-                        String zone = this.zones.getZoneForLinkId(startLinkId).getId();
+                        String zone = this.zones.getZoneForLinkId(startLinkId);
                         drtWaitTimes.getAvgWaitTimes();
 
                         if (drtWaitTimes.getAvgWaitTimes().get(zone) != null) {

@@ -75,4 +75,9 @@ public class WaitTimeTracker implements PersonEntersVehicleEventHandler, DrtRequ
         return drtTrips;
     }
 
+    public void setDrtTrips(Set<DrtTripData> newDrtTrips) {
+
+        this.drtTrips = newDrtTrips;
+    }
+
 }

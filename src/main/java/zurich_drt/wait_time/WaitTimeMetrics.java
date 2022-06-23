@@ -1,26 +1,20 @@
 package zurich_drt.wait_time;
 
-import org.matsim.contrib.drt.analysis.zonal.DrtZonalSystem;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @author kaghog created on 22.06.2022
- * @project ridepooling
- */
-public class WaitTimeMetrics {
-    private static DrtZonalSystem zones;
-    private static Map<String, Set<WaitTimeData>> successiveZonalWaitTimes;
 
-    private static Map<String, Set<WaitTimeData>> createZonalStats(WaitTimeTracker waitTimes, Map<String, Set<WaitTimeData>> zonalWaitTimes) {
+public class WaitTimeMetrics {
+    private static final Map<Integer, WaitTimeTracker> dailyWaitTimes = new HashMap<>();
+
+    private static Map<String, Set<WaitTimeData>> createZonalStats(WaitTimeTracker waitTimes, WayneCountyDrtZonalSystem zones, Map<String, Set<WaitTimeData>> zonalWaitTimes) {
         Set<DrtTripData> drtTrips = waitTimes.getDrtTrips();
 
         for (DrtTripData drtTrip : drtTrips) {
 
-            String zone = zones.getZoneForLinkId(drtTrip.startLinkId).getId();
+            String zone = zones.getZoneForLinkId(drtTrip.startLinkId);
             if (zonalWaitTimes.containsKey(zone)) {
                 WaitTimeData wtd = new WaitTimeData();
                 wtd.startTime = drtTrip.startTime;
@@ -42,8 +36,8 @@ public class WaitTimeMetrics {
 
     }
 
-    public static Map<String, double[]> calculateZonalAverageWaitTimes(WaitTimeTracker waitTimes) {
-        Map<String, Set<WaitTimeData>> zonalWaitTimes = createZonalStats(waitTimes, new HashMap<>());
+    public static Map<String, double[]> calculateZonalAverageWaitTimes(WaitTimeTracker waitTimes, WayneCountyDrtZonalSystem zones) {
+        Map<String, Set<WaitTimeData>> zonalWaitTimes = createZonalStats(waitTimes, zones, new HashMap<>());
         Map<String, double[]> avgZonalWaitTimes = new HashMap<>();
         int timeBins = 100; //toDo justify the choice of this time bin now it is hourly and set at 100 to capture multiday trips
 
@@ -68,9 +62,32 @@ public class WaitTimeMetrics {
         return avgZonalWaitTimes;
     }
 
-    public static Map<String, double[]> calculateSuccessiveZonalAverageWaitTimes(int iteration, WaitTimeTracker waitTimes) {
-        Map<String, Set<WaitTimeData>> zonalWaitTimes = createZonalStats(waitTimes, new HashMap<>());
+    public static Map<String, double[]> calculateMovingZonalAverageWaitTimes(WaitTimeTracker waitTimes, WayneCountyDrtZonalSystem zones, int iteration, int movingWindow) {
+        //add wait times and their iterations
+        //should we use a map or an array?
+        Set<DrtTripData> newDrtTrips = waitTimes.getDrtTrips();
 
-        return null;
+        //define starting window  //iteration starts from zero so subtract 1 from movingWindow
+        int start = 0;
+        if (iteration > movingWindow - 1) {
+            start = iteration - movingWindow - 1;
+        }
+
+        //add past wait times from the starting window
+        if(iteration != 0) {
+            for (int i = start; i<iteration; i++){
+                newDrtTrips.addAll(dailyWaitTimes.get(i).getDrtTrips());
+            }
+        }
+
+        //update with current wait times of the day
+        dailyWaitTimes.put(iteration, waitTimes);
+
+        //get all the wait times and combine per iteration
+        WaitTimeTracker updatedWaitTimes = new WaitTimeTracker();
+        updatedWaitTimes.setDrtTrips(newDrtTrips);
+
+        //Find total averages for the time period
+        return calculateZonalAverageWaitTimes(updatedWaitTimes, zones);
     }
 }
