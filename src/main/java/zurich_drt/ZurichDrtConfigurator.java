@@ -1,3 +1,4 @@
+/*
 package zurich_drt;
 
 import ch.sbb.matsim.config.SwissRailRaptorConfigGroup;
@@ -12,7 +13,7 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.contrib.drt.analysis.zonal.DrtModeZonalSystemModule;
 import org.matsim.contrib.drt.analysis.zonal.DrtZonalSystemParams;
 import org.matsim.contrib.drt.optimizer.insertion.DrtInsertionSearchParams;
-import org.matsim.contrib.drt.optimizer.insertion.SelectiveInsertionSearchParams;
+import org.matsim.contrib.drt.optimizer.insertion.selective.SelectiveInsertionSearchParams;
 import org.matsim.contrib.drt.routing.DrtRoute;
 import org.matsim.contrib.drt.routing.DrtRouteFactory;
 import org.matsim.contrib.drt.run.DrtConfigGroup;
@@ -149,7 +150,7 @@ public class ZurichDrtConfigurator extends EqasimConfigurator {
         controller.addOverridingModule(new DrtModeZonalSystemModule(DrtConfigGroup.getSingleModeDrtConfig(config)));
         controller.addOverridingModule(new ZurichDrtWaitTimeModule(DrtConfigGroup.getSingleModeDrtConfig(config), scenario));
 
-        /*if (!config.qsim().getVehiclesSource().name().equals("defaultVehicle")) {
+if (!config.qsim().getVehiclesSource().name().equals("defaultVehicle")) {
             controller.addOverridingModule(new AbstractModule() {
 
                 @Override
@@ -159,8 +160,10 @@ public class ZurichDrtConfigurator extends EqasimConfigurator {
                                     scenario.getVehicles().getVehicleTypes().get(Id.create(TransportMode.drt, VehicleType.class)));
                 }
             });}
-*/
+
+
 
     }
 
 }
+*/
